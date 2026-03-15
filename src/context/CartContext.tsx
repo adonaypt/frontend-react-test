@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-
-const STORAGE_KEY = 'cart_count'
+import { STORAGE_KEY } from '../utils/constants'
 
 function getStoredCount() {
   const stored = localStorage.getItem(STORAGE_KEY)
