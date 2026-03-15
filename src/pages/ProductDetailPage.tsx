@@ -24,7 +24,10 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState<number | null>(null)
   const [selectedStorage, setSelectedStorage] = useState<number | null>(null)
   const [adding, setAdding] = useState(false)
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [feedback, setFeedback] = useState<{
+    type: 'success' | 'error'
+    message: string
+  } | null>(null)
 
   useEffect(() => {
     const fetchProduct = async () => {
