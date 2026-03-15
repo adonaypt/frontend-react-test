@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import Alert from '../components/Alert'
 import Loading from '../components/Loading'
 import Toast from '../components/Toast'
-import { useCart } from '../context/CartContext'
+import { useCart } from '../hooks/useCart'
 import { addToCart, getProductById } from '../services/api'
 import type { ProductDetail } from '../types/product'
 

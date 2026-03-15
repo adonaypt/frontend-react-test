@@ -5,6 +5,7 @@ import Loading from '../components/Loading'
 import SearchBar from '../components/SearchBar'
 import { getProducts } from '../services/api'
 import type { Product } from '../types/product'
+import { filterProducts } from '../utils/filterProducts'
 
 export default function ProductListPage() {
   const navigate = useNavigate()
@@ -27,10 +28,7 @@ export default function ProductListPage() {
     fetchProducts()
   }, [])
 
-  const filtered = products.filter((p) => {
-    const term = search.toLowerCase()
-    return p.brand.toLowerCase().includes(term) || p.model.toLowerCase().includes(term)
-  })
+  const filtered = filterProducts(products, search)
 
   if (loading) return <Loading message="Loading products..." />
 
