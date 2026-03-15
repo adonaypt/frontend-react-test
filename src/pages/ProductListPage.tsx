@@ -1,22 +1,25 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Alert from '../components/Alert'
+import Loading from '../components/Loading'
 import SearchBar from '../components/SearchBar'
 import { getProducts } from '../services/api'
 import type { Product } from '../types/product'
 
 export default function ProductListPage() {
+  const navigate = useNavigate()
   const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const data = await getProducts()
         setProducts(data)
-      } catch (error) {
-        console.error(error)
+      } catch {
+        setError(true)
       } finally {
         setLoading(false)
       }
@@ -29,7 +32,9 @@ export default function ProductListPage() {
     return p.brand.toLowerCase().includes(term) || p.model.toLowerCase().includes(term)
   })
 
-  if (loading) return <p className="text-gray-500">Loading...</p>
+  if (loading) return <Loading message="Loading products..." />
+
+  if (error) return <Alert message="Something went wrong loading products. Try again later." />
 
   return (
     <section>

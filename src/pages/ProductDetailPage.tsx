@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import Alert from '../components/Alert'
+import Loading from '../components/Loading'
+import Toast from '../components/Toast'
 import { useCart } from '../context/CartContext'
 import { addToCart, getProductById } from '../services/api'
 import type { ProductDetail } from '../types/product'
@@ -15,11 +18,13 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 export default function ProductDetailPage() {
   const { id } = useParams()
+  const { increment } = useCart()
   const [product, setProduct] = useState<ProductDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedColor, setSelectedColor] = useState<number | null>(null)
   const [selectedStorage, setSelectedStorage] = useState<number | null>(null)
-  const { increment } = useCart()
+  const [adding, setAdding] = useState(false)
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -40,16 +45,31 @@ export default function ProductDetailPage() {
 
   async function handleAddToCart() {
     if (!product || selectedColor === null || selectedStorage === null) return
+    setAdding(true)
+    setFeedback(null)
     try {
       await addToCart(product.id, selectedColor, selectedStorage)
       increment()
-    } catch (error) {
-      console.error(error)
+      setFeedback({ type: 'success', message: 'Added to cart!' })
+    } catch {
+      setFeedback({ type: 'error', message: 'Failed to add to cart' })
+    } finally {
+      setAdding(false)
     }
   }
 
-  if (loading) return <p className="text-gray-500">Loading...</p>
-  if (!product) return <p className="text-red-500">Product not found</p>
+  if (loading) return <Loading message="Loading product..." />
+
+  if (!product) {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <Link to="/" className="text-sm text-violet-600 hover:text-violet-800">
+          Back to products
+        </Link>
+        <Alert message="Product not found" />
+      </div>
+    )
+  }
 
   return (
     <section>
@@ -92,7 +112,7 @@ export default function ProductDetailPage() {
               <select
                 value={selectedStorage ?? ''}
                 onChange={(e) => setSelectedStorage(Number(e.target.value))}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                className="cursor-pointer rounded-lg border border-gray-300 px-3 py-2 text-sm"
               >
                 {product.options.storages.map((s) => (
                   <option key={s.code} value={s.code}>
@@ -103,7 +123,7 @@ export default function ProductDetailPage() {
               <select
                 value={selectedColor ?? ''}
                 onChange={(e) => setSelectedColor(Number(e.target.value))}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                className="cursor-pointer rounded-lg border border-gray-300 px-3 py-2 text-sm"
               >
                 {product.options.colors.map((c) => (
                   <option key={c.code} value={c.code}>
@@ -113,10 +133,12 @@ export default function ProductDetailPage() {
               </select>
               <button
                 onClick={handleAddToCart}
-                className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 transition-colors"
+                disabled={adding}
+                className="cursor-pointer rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Add to cart
+                {adding ? 'Adding...' : 'Add to cart'}
               </button>
+              {feedback && <Toast message={feedback.message} type={feedback.type} onClose={() => setFeedback(null)} />}
             </div>
           </div>
         </div>
