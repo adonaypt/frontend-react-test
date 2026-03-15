@@ -1,5 +1,7 @@
+import { useCart } from '../context/CartContext'
+
 export default function CartCount() {
-  const count = 1 // cart count -> localstotage
+  const { count } = useCart()
 
   return (
     <div className="relative">
